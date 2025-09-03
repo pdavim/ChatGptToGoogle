@@ -57,7 +57,13 @@ function testAllNotifications_() {
 
 // Teste de POST ao Web App com payload fictício
 function testWebAppPost_() {
-  const url = 'https://script.google.com/macros/s/AKfycbzkN0tlMxF4_Rk2itshs6naa_aPIUyd4Y_9Tv5q3N65VGQoAKdYI0RLfYBO24XV3Vl3HA/exec';
+  const prop = PropertiesService.getScriptProperties();
+  let url = prop.getProperty('WEB_APP_URL');
+  if (!url) {
+    url = Browser.inputBox('Informe a URL do Web App para testes:');
+    if (!url || url === 'cancel') return 'URL do Web App não fornecida.';
+    prop.setProperty('WEB_APP_URL', url);
+  }
   const now = new Date();
   const iso = Utilities.formatDate(now, TZ, "yyyy-MM-dd'T'HH:mm:ssXXX");
   const payload = {
