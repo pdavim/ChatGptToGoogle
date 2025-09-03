@@ -159,8 +159,13 @@ function appendWebhookAudit_(body, gotSecret, msg){
 
 /* ========================= ENTRYPOINT ========================= */
 function doPost(e) {
-   const lock = LockService.getScriptLock();
-  lock.tryLock(20000);
+  const lock = LockService.getScriptLock();
+  let gotLock = lock.tryLock(20000);
+  if (!gotLock) {
+    Utilities.sleep(500);
+    gotLock = lock.tryLock(5000);
+  }
+  if (!gotLock) return json({ ok:false, error:'busy' });
   try {
     ensureSpreadsheetTZ_();
     if (!e || !e.postData || !e.postData.contents) return json({ ok:false, error:'no body' });
@@ -215,7 +220,7 @@ function doPost(e) {
   } catch (err) {
     return json({ ok:false, error:String(err) });
   } finally {
-    try { lock.releaseLock(); } catch(_) {}
+    if (gotLock) try { lock.releaseLock(); } catch(_) {}
   }
 }
 
