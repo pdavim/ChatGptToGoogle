@@ -279,26 +279,36 @@ function buildDashboardLayout_(sh) {
   sh.getRange(r,1).setValue(ASSETS[i]);
 
   // Preço / Variações
-  sh.getRange(r,2).setFormula( `=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!E2:E}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` );
-  sh.getRange(r,3).setFormula( `=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!J2:J}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` );
-  sh.getRange(r,4).setFormula( `=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!K2:K}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` );
-  sh.getRange(r,5).setFormula( `=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!L2:L}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` );
+  sh.getRange(r,2).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!E2:E}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,3).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!J2:J}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,4).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!K2:K}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,5).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!L2:L}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
 
   // Indicadores
-  sh.getRange(r,6).setFormula( `=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!M2:M}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` ); // RSI
-  sh.getRange(r,7).setFormula( `=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!P2:P}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` ); // MACD_Hist
-  sh.getRange(r,8).setFormula( `=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!Q2:Q}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` ); // SMA20
-  sh.getRange(r,9).setFormula( `=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!R2:R}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` ); // SMA50
-  sh.getRange(r,10).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!S2:S}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` ); // SMA100
-  sh.getRange(r,11).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!T2:T}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` ); // SMA200
-  sh.getRange(r,12).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!X2:X}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` ); // BollWidth
-  sh.getRange(r,13).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!Y2:Y}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` ); // ATR14
-  sh.getRange(r,14).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!AB2:AB}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` ); // Volume
-  sh.getRange(r,15).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!AI2:AI}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` ); // FearGreed
+  sh.getRange(r,6).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!M2:M}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  // RSI
+  sh.getRange(r,7).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!P2:P}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  // MACD_Hist
+  sh.getRange(r,8).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Q2:Q}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  // SMA20
+  sh.getRange(r,9).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!R2:R}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  // SMA50
+  sh.getRange(r,10).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!S2:S}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  // SMA100
+  sh.getRange(r,11).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!T2:T}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  // SMA200
+  sh.getRange(r,12).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!X2:X}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  // BollWidth
+  sh.getRange(r,13).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Y2:Y}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  // ATR14
+  sh.getRange(r,14).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!AB2:AB}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  // Volume
+  sh.getRange(r,15).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!AI2:AI}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  // FearGreed
 
   // Tendência / Recomendação
-  sh.getRange(r,16).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!AD2:AD}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` );
-  sh.getRange(r,17).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!AE2:AE}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` );
+  sh.getRange(r,16).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!AD2:AD}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,17).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!AE2:AE}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
 
   // Semáforo (R) e Score (S) — mantém como tinhas
   sh.getRange(r,19).setFormula(`=ROUND(
@@ -314,7 +324,7 @@ function buildDashboardLayout_(sh) {
 
   // Sparkline — já estava OK
   sh.getRange(r,20).setFormula(`=SPARKLINE(
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!I2:I},Relatorios!D2:D=$A${r}),1,TRUE),0,2),
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!I2:I},${REL}!D2:D=$A${r}),1,TRUE),0,2),
     {"charttype","line";"linewidth",2}
   )`);
 }
