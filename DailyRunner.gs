@@ -13,6 +13,17 @@ function runDailyMonitor_() {
   try { checkDailyRuns_(); } catch (e) { Logger.log(e); }
 }
 
+/**
+ * Executa imediatamente a análise neutra.
+ * Atualmente, delega para a rotina de atualização diária
+ * para garantir que os artefatos sejam atualizados.
+ */
+function runNeutralAnalysisNow_(label) {
+  Logger.log('runNeutralAnalysisNow_ ' + label);
+  runDailyRefresh_();
+  return { ok: true, label: label };
+}
+
 // Teste de POST ao Web App com payload fictício
 function testWebAppPost_() {
   const prop = PropertiesService.getScriptProperties();
