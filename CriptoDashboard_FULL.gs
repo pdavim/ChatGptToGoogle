@@ -1251,6 +1251,3 @@ function fixFormulaErrorsNow_(){
   const s = ss.getSheetByName(SUMMARY_SHEET);   if (s) refreshSummaryCharts_(s);
   SpreadsheetApp.getActive().toast('Formulas reconstruídas. Verifique Painel/Alertas/Resumo.');
 }
-  sh.getRange(r,11).setFormula(`=LET(s20,FILTER(${REL}!Q:Q,${REL}!D:D=$A${r}),s50,FILTER(${REL}!R:R,${REL}!D:D=$A${r}),n,ROWS(s20),IFERROR(AND(INDEX(s20,n)>INDEX(s50,n),INDEX(s20,n-1)<=INDEX(s50,n-1)),FALSE))`);
-
-  sh.getRange(r,12).setFormula(`=LET(s20,FILTER(${REL}!Q:Q,${REL}!D:D=$A${r}),s50,FILTER(${REL}!R:R,${REL}!D:D=$A${r}),n,ROWS(s20),IFERROR(AND(INDEX(s20,n)<INDEX(s50,n),INDEX(s20,n-1)>=INDEX(s50,n-1)),FALSE))`);
