@@ -2,6 +2,8 @@
  * ActivateAndTest_Menu.gs
  */
 
+const DISCORD_WEBHOOK_MISSING_WARNING = 'Discord notifications disabled: missing webhook URL';
+
 function oneClickActivate_() {
   const messages = [];
   const steps = [
@@ -24,7 +26,11 @@ function oneClickActivate_() {
   steps.forEach(fn => {
     try {
       const result = fn();
-      messages.push(`${fn.name}: ${result || 'OK'}`);
+      if (result && result.warning) {
+        messages.push(`${fn.name}: WARN - ${result.warning}`);
+      } else {
+        messages.push(`${fn.name}: ${result || 'OK'}`);
+      }
     } catch (e) {
       messages.push(`${fn.name}: ERROR - ${e.message}`);
       Logger.log(e);
@@ -38,7 +44,7 @@ function oneClickActivate_() {
 }
 
 function pushDiscordActivationPing_() {
-  if (!discordWebhookUrl_()) return 'Sem webhook configurado';
+  if (!discordWebhookUrl_()) return { warning: DISCORD_WEBHOOK_MISSING_WARNING };
   const embed = {
     title: '🚀 Cripto Dashboard — Ativação concluída',
     description: 'Triggers ativos (monitor & manutenção). Painel/Resumo/Alertas prontos.',
@@ -66,8 +72,9 @@ function testEmail_() {
 }
 function testAllNotifications_() {
   const a = pushDiscordActivationPing_();
+  const discordMsg = a && a.warning ? `WARN - ${a.warning}` : a;
   const b = testEmail_();
-  return a + ' | ' + b;
+  return discordMsg + ' | ' + b;
 }
 
 // Teste de POST ao Web App com payload fictício
