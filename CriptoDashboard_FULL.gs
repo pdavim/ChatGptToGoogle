@@ -414,8 +414,8 @@ function buildSummaryLayout_(sh) {
       assets, FILTER(${PAN}!A2:A, ${PAN}!A2:A<>""),
       scores, FILTER(${PAN}!S2:S, ${PAN}!A2:A<>""),
       vols,   FILTER(${PAN}!N2:N, ${PAN}!A2:A<>""),
-      customW, IFNA(VLOOKUP(assets, ${RES}!B16:C, 2, FALSE), ),
-      capW,    IFNA(VLOOKUP(assets, ${REF}!A:B, 2, FALSE), ),
+      customW, IFNA(VLOOKUP(assets, ${RES}!B16:C, 2, FALSE), ""),
+      capW,    IFNA(VLOOKUP(assets, ${REF}!A:B, 2, FALSE), ""),
       weights, IF(LEN(customW), customW, IF(LEN(capW), capW, vols)),
       IF(SUM(weights)=0, AVERAGE(scores), SUMPRODUCT(scores, weights)/SUM(weights))
     )`);
@@ -464,7 +464,7 @@ function buildSummaryLayout_(sh) {
 
   // MM 30D (com Fiabilidade30)
   sh.getRange('E9').setValue('MM 30D (%)');
-  sh.getRange('F9').setFormula(`=IFERROR(AVERAGE(${F30}!G2:INDEX(${F30}!G:G, 1+COUNTA(${F30}!A2:A))),)`);
+  sh.getRange('F9').setFormula(`=IFERROR(AVERAGE(${F30}!G2:INDEX(${F30}!G:G, 1+COUNTA(${F30}!A2:A))),"")`);
   sh.getRange('F9').setNumberFormat('0.00%');
   sh.getRange('E10').setValue('Tendência (MM30D)');
   sh.getRange('F10').setFormula('=IFS(F9>=0.9,"🟢",F9>=0.75,"🟡",TRUE,"🔴")');
