@@ -5,12 +5,34 @@
 
 /** Executa a rotina de atualização diária dos artefatos. */
 function runDailyRefresh_() {
-  try { refreshDailyArtifacts_(); } catch (e) { Logger.log(e); }
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30 * 1000)) {
+    Logger.log('runDailyRefresh_ lock unavailable');
+    return;
+  }
+  try {
+    refreshDailyArtifacts_();
+  } catch (e) {
+    Logger.log(e);
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 /** Verifica se as execuções do dia ocorreram como esperado. */
 function runDailyMonitor_() {
-  try { checkDailyRuns_(); } catch (e) { Logger.log(e); }
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(30 * 1000)) {
+    Logger.log('runDailyMonitor_ lock unavailable');
+    return;
+  }
+  try {
+    checkDailyRuns_();
+  } catch (e) {
+    Logger.log(e);
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 /**
