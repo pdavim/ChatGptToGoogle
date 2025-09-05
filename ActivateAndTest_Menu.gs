@@ -3,24 +3,38 @@
  */
 
 function oneClickActivate_() {
-  try { ensureSpreadsheetTZ_(); } catch(e){ Logger.log(e); }
-  try { ensureRef_(); } catch(e){ Logger.log(e); }
-  try { ensureDashboard(); } catch(e){ Logger.log(e); }
-  try { ensureSummary(); } catch(e){ Logger.log(e); }
-  try { ensureHistory30(); } catch(e){ Logger.log(e); }
-  try { ensureReliability30Sheet_(); } catch(e){ Logger.log(e); }
-  try { ensureAlerts(); } catch(e){ Logger.log(e); }
-  try { ensureAlertStateSheets_(); } catch(e){ Logger.log(e); }
-  try { ensureHeartbeat_(); } catch(e){ Logger.log(e); }
-  try { ensureWeeklyScaffold_(); } catch(e){ Logger.log(e); }
+  const messages = [];
+  const steps = [
+    ensureSpreadsheetTZ_,
+    ensureRef_,
+    ensureDashboard,
+    ensureSummary,
+    ensureHistory30,
+    ensureReliability30Sheet_,
+    ensureAlerts,
+    ensureAlertStateSheets_,
+    ensureHeartbeat_,
+    ensureWeeklyScaffold_,
+    setupMonitoringTriggers_,
+    setupMaintenanceTriggers_,
+    pushDiscordActivationPing_,
+    testEmail_
+  ];
 
-  try { setupMonitoringTriggers_(); } catch(e){ Logger.log(e); }
-  try { setupMaintenanceTriggers_(); } catch(e){ Logger.log(e); }
+  steps.forEach(fn => {
+    try {
+      const result = fn();
+      messages.push(`${fn.name}: ${result || 'OK'}`);
+    } catch (e) {
+      messages.push(`${fn.name}: ERROR - ${e.message}`);
+      Logger.log(e);
+    }
+  });
 
-  try { pushDiscordActivationPing_(); } catch(e){ Logger.log(e); }
-  try { testEmail_(); } catch(e){ Logger.log(e); }
+  messages.push('--- Triggers ---');
+  messages.push(listTriggers_());
 
-  return 'OK: Triggers definidos, folhas asseguradas e notificações testadas.';
+  return messages.join('\n');
 }
 
 function pushDiscordActivationPing_() {
@@ -59,4 +73,15 @@ function testAllNotifications_() {
 // Teste de POST ao Web App com payload fictício
 function testWebAppPost_() {
   return testWebAppPostImpl_();
+}
+
+function listTriggers_() {
+  const triggers = ScriptApp.getProjectTriggers();
+  if (!triggers.length) return 'No project triggers found.';
+  return triggers.map(t => {
+    const type = String(t.getTriggerSource());
+    const handler = t.getHandlerFunction();
+    const schedule = String(t.getEventType());
+    return `${type} | ${handler} | ${schedule}`;
+  }).join('\n');
 }
