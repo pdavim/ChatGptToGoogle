@@ -290,36 +290,36 @@ function buildDashboardLayout_(sh) {
   sh.getRange(r,1).setValue(ASSETS[i]);
 
   // Preço / Variações
-  sh.getRange(r,2).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!E2:E}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
-  sh.getRange(r,3).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!J2:J}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
-  sh.getRange(r,4).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!K2:K}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
-  sh.getRange(r,5).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!L2:L}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,2).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!E:E)`);
+  sh.getRange(r,3).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!J:J)`);
+  sh.getRange(r,4).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!K:K)`);
+  sh.getRange(r,5).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!L:L)`);
 
   // Indicadores
-  sh.getRange(r,6).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!M2:M}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,6).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!M:M)`);
   // RSI
-  sh.getRange(r,7).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!P2:P}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,7).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!P:P)`);
   // MACD_Hist
-  sh.getRange(r,8).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Q2:Q}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,8).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!Q:Q)`);
   // SMA20
-  sh.getRange(r,9).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!R2:R}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,9).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!R:R)`);
   // SMA50
-  sh.getRange(r,10).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!S2:S}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,10).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!S:S)`);
   // SMA100
-  sh.getRange(r,11).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!T2:T}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,11).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!T:T)`);
   // SMA200
-  sh.getRange(r,12).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!X2:X}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,12).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!X:X)`);
   // BollWidth
-  sh.getRange(r,13).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Y2:Y}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,13).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!Y:Y)`);
   // ATR14
-  sh.getRange(r,14).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!AB2:AB}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,14).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!AB:AB)`);
   // Volume
-  sh.getRange(r,15).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!AI2:AI}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,15).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!AI:AI)`);
   // FearGreed
 
   // Tendência / Recomendação
-  sh.getRange(r,16).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!AD2:AD}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
-  sh.getRange(r,17).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!AE2:AE}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,16).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!AD:AD)`);
+  sh.getRange(r,17).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!AE:AE)`);
 
   // Semáforo (R) e Score (S) — mantém como tinhas
   sh.getRange(r,19).setFormula(`=ROUND(
@@ -333,9 +333,9 @@ function buildDashboardLayout_(sh) {
   )`);
   sh.getRange(r,18).setFormula(`=IFS($S${r}>=20,"🟢",$S${r}>=5,"🟡",TRUE,"🔴")`);
 
-  // Sparkline — já estava OK
+  // Sparkline — extrai série de preços sem reordenar
   sh.getRange(r,20).setFormula(`=SPARKLINE(
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!I2:I},${REL}!D2:D=$A${r}),1,TRUE),0,2),
+    FILTER(${REL}!I:I,${REL}!D:D=$A${r}),
     {"charttype","line";"linewidth",2}
   )`);
 }
@@ -396,7 +396,7 @@ function buildSummaryLayout_(sh) {
 
   // ========== KPI básicos ==========
   sh.getRange('A3').setValue('Data/Hora último relatório');
-  sh.getRange('B3').setFormula(`=INDEX(SORT(FILTER(${REL}!B2:B, ${REL}!B2:B<>""),1,FALSE),1)`);
+  sh.getRange('B3').setFormula(`=LOOKUP(2,1/(${REL}!B:B<>""),${REL}!B:B)`);
   sh.getRange('A4').setValue('Média Score (Painel)');
   sh.getRange('B4').setFormula(`=AVERAGE(${PAN}!S2:S)`);
   sh.getRange('A5').setValue('Semáforos (🟢 / 🟡 / 🔴)');
@@ -622,50 +622,42 @@ function buildAlertsLayout_(sh) {
   const r = 2+i; sh.getRange(r,1).setValue(ASSETS[i]);
 
   // Último timestamp (esta já funcionava)
-  sh.getRange(r,2).setFormula(`=INDEX(SORT(FILTER(${REL}!B2:B, ${REL}!D2:D=$A${r}), 1, FALSE), 1)`);
+  sh.getRange(r,2).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!B:B)`);
 
   // RSI atual
-  sh.getRange(r,3).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!M2:M}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,3).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!M:M)`);
   sh.getRange(r,4).setFormula(`=IF($C${r}="",, $C${r}>70)`);
   sh.getRange(r,5).setFormula(`=IF($C${r}="",, $C${r}<30)`);
 
   // MACD_Hist atual
-  sh.getRange(r,6).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!P2:P}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,6).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!P:P)`);
 
   // MACD flip ↑ (last>0 & prev<=0)
-  sh.getRange(r,7).setFormula(`=IFERROR(AND(
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!P2:P}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2) > 0,
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!P2:P}, ${REL}!D2:D=$A${r}), 1, FALSE), 2, 2) <= 0
-  ), FALSE)`);
+  sh.getRange(r,7).setFormula(
+    `=LET(f,FILTER(${REL}!P:P,${REL}!D:D=$A${r}),n,ROWS(f),IFERROR(AND(INDEX(f,n)>0,INDEX(f,n-1)<=0),FALSE))`
+  );
 
   // MACD flip ↓ (last<0 & prev>=0)
-  sh.getRange(r,8).setFormula(`=IFERROR(AND(
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!P2:P}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2) < 0,
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!P2:P}, ${REL}!D2:D=$A${r}), 1, FALSE), 2, 2) >= 0
-  ), FALSE)`);
+  sh.getRange(r,8).setFormula(
+    `=LET(f,FILTER(${REL}!P:P,${REL}!D:D=$A${r}),n,ROWS(f),IFERROR(AND(INDEX(f,n)<0,INDEX(f,n-1)>=0),FALSE))`
+  );
 
   // SMAs atuais
-  sh.getRange(r,9).setFormula( `=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Q2:Q}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)` );  // SMA20
-  sh.getRange(r,10).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!R2:R}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)` );  // SMA50
+  sh.getRange(r,9).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!Q:Q)`);  // SMA20
+  sh.getRange(r,10).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!R:R)`);  // SMA50
 
   // Golden / Death cross (usa last vs prev)
-  sh.getRange(r,11).setFormula(`=IFERROR(AND(
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Q2:Q}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2) >
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!R2:R}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2),
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Q2:Q}, ${REL}!D2:D=$A${r}), 1, FALSE), 2, 2) <=
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!R2:R}, ${REL}!D2:D=$A${r}), 1, FALSE), 2, 2)
-  ), FALSE)`);
+  sh.getRange(r,11).setFormula(
+    `=LET(s20,FILTER(${REL}!Q:Q,${REL}!D:D=$A${r}),s50,FILTER(${REL}!R:R,${REL}!D:D=$A${r}),n,ROWS(s20),IFERROR(AND(INDEX(s20,n)>INDEX(s50,n),INDEX(s20,n-1)<=INDEX(s50,n-1)),FALSE))`
+  );
 
-  sh.getRange(r,12).setFormula(`=IFERROR(AND(
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Q2:Q}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2) <
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!R2:R}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2),
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Q2:Q}, ${REL}!D2:D=$A${r}), 1, FALSE), 2, 2) >=
-    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!R2:R}, ${REL}!D2:D=$A${r}), 1, FALSE), 2, 2)
-  ), FALSE)`);
+  sh.getRange(r,12).setFormula(
+    `=LET(s20,FILTER(${REL}!Q:Q,${REL}!D:D=$A${r}),s50,FILTER(${REL}!R:R,${REL}!D:D=$A${r}),n,ROWS(s20),IFERROR(AND(INDEX(s20,n)<INDEX(s50,n),INDEX(s20,n-1)>=INDEX(s50,n-1)),FALSE))`
+  );
 
   // Preço e Var24h (para contexto na grelha)
-  sh.getRange(r,13).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!E2:E}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
-  sh.getRange(r,14).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!J2:J}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,13).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!E:E)`);
+  sh.getRange(r,14).setFormula(`=LOOKUP(2,1/(${REL}!D:D=$A${r}),${REL}!J:J)`);
 
   // As fórmulas 15..18 (RSI cross-back/neutral) que tinhas com LET/TAKE já estavam corretas — mantém.
 }
@@ -1248,3 +1240,6 @@ function fixFormulaErrorsNow_(){
   const s = ss.getSheetByName(SUMMARY_SHEET);   if (s) refreshSummaryCharts_(s);
   SpreadsheetApp.getActive().toast('Formulas reconstruídas. Verifique Painel/Alertas/Resumo.');
 }
+  sh.getRange(r,11).setFormula(`=LET(s20,FILTER(${REL}!Q:Q,${REL}!D:D=$A${r}),s50,FILTER(${REL}!R:R,${REL}!D:D=$A${r}),n,ROWS(s20),IFERROR(AND(INDEX(s20,n)>INDEX(s50,n),INDEX(s20,n-1)<=INDEX(s50,n-1)),FALSE))`);
+
+  sh.getRange(r,12).setFormula(`=LET(s20,FILTER(${REL}!Q:Q,${REL}!D:D=$A${r}),s50,FILTER(${REL}!R:R,${REL}!D:D=$A${r}),n,ROWS(s20),IFERROR(AND(INDEX(s20,n)<INDEX(s50,n),INDEX(s20,n-1)>=INDEX(s50,n-1)),FALSE))`);
