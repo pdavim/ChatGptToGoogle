@@ -1216,7 +1216,6 @@ function buildMenu_(){
     .addItem('Testar Notificações (Discord/Email)', 'testAllNotifications_')
     .addSeparator()
     .addItem('Executar análise agora (DailyRunner)', 'runNeutralAnalysisNow_Menu_')
-    .addItem('Agendar 2×/dia (DailyRunner)', 'activateTwoDailyAnalyses_')
     .addSeparator()
     .addItem('Atualizar artefactos diários agora', 'refreshDailyArtifacts_')
     .addToUi();
