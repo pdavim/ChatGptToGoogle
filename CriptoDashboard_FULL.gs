@@ -243,38 +243,38 @@ function doPost(e) {
     sheet.getRange(startRow, 1, rows.length, HEADERS.length).setValues(rows);
 
     // opcional: gravar markdown/texto vindo do “task to ChatGPT”
-    try { writeMarkdownIfPresent_(body); } catch(_) {}
+    try { writeMarkdownIfPresent_(body); } catch(e){ Logger.log(e); }
 
     // Heartbeat
-    try { updateHeartbeat_(report); } catch(_) {}
+    try { updateHeartbeat_(report); } catch(e){ Logger.log(e); }
 
     // Infra
-    try { ensureRef_();            } catch(_) {}
-    try { ensureDashboard();       } catch(_) {}
-    try { ensureSummary();         } catch(_) {}
+    try { ensureRef_();            } catch(e){ Logger.log(e); }
+    try { ensureDashboard();       } catch(e){ Logger.log(e); }
+    try { ensureSummary();         } catch(e){ Logger.log(e); }
 
     // Backfill Historico30 (últimos 30 dias com carry-forward)
-    try { ensureHistory30();       } catch(_) {}
+    try { ensureHistory30();       } catch(e){ Logger.log(e); }
 
     // Alertas
-    try { ensureAlerts();          } catch(_) {}
-    try { processAlertsStateAndNotify_(report); } catch(_) {}
+    try { ensureAlerts();          } catch(e){ Logger.log(e); }
+    try { processAlertsStateAndNotify_(report); } catch(e){ Logger.log(e); }
 
     // Discord (modo 'every' opcional)
-    try { maybePushDiscord_(DISCORD_PUSH_MODE, body, report); } catch(_) {}
+    try { maybePushDiscord_(DISCORD_PUSH_MODE, body, report); } catch(e){ Logger.log(e); }
 
     // Fiabilidade 30D (heatmap)
-    try { ensureReliability30Sheet_(); } catch(_) {}
+    try { ensureReliability30Sheet_(); } catch(e){ Logger.log(e); }
 
     // Semanal (segunda 08:30) – PDF + sheet
-    try { ensureWeeklyScaffold_(); } catch(_) {}
-    try { maybeGenerateWeekly_(report); } catch(_) {}
+    try { ensureWeeklyScaffold_(); } catch(e){ Logger.log(e); }
+    try { maybeGenerateWeekly_(report); } catch(e){ Logger.log(e); }
 
     return json({ ok:true, added: rows.length });
   } catch (err) {
     return json({ ok:false, error:String(err) });
   } finally {
-    if (gotLock) try { lock.releaseLock(); } catch(_) {}
+    if (gotLock) try { lock.releaseLock(); } catch(e){ Logger.log(e); }
   }
 }
 
@@ -965,7 +965,7 @@ function discordPost_(payload) {
       const res2 = UrlFetchApp.fetch(fallbackUrl, opts);
       Logger.log('Discord fallback ' + res2.getResponseCode() + ': ' + res2.getContentText());
     }
-  } catch(e){}
+  } catch(e){ Logger.log(e); }
 }
 
 /* ========================= HEARTBEAT & MONITOR ========================= */
