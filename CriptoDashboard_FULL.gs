@@ -26,6 +26,13 @@ const WEEKLY_SHEET    = 'Semanal';
 const WEEKLY_LOG_SHEET= 'SemanalLog';
 const REF_SHEET       = 'Ref';
 
+const REL = qn_(SHEET_NAME);
+const PAN = qn_(DASHBOARD_SHEET);
+const RES = qn_(SUMMARY_SHEET);
+const F30 = qn_(RELIAB_SHEET);
+const SEMLOG = qn_(WEEKLY_LOG_SHEET);
+const REF = qn_(REF_SHEET);
+
 const ASSETS = ['BTC','ETH','SOL','TRX','POL','SUI'];
 
 // Janelas (ajusta conforme o teu runner). Ex.: 12 ⇒ de 2h/2h
@@ -278,7 +285,6 @@ function buildDashboardLayout_(sh) {
   ];
   sh.getRange(1,1,1,headers.length).setValues([headers]).setFontWeight('bold');
 
-  const REL = qn_(SHEET_NAME);
   for (let i=0; i<ASSETS.length; i++) {
   const r = 2+i;
   sh.getRange(r,1).setValue(ASSETS[i]);
@@ -378,8 +384,7 @@ function buildSummaryLayout_(sh) {
   sh.getRange('G2').setValue('Registos').setFontWeight('bold');
   sh.getRange('H2').setValue('Status').setFontWeight('bold');
 
-  const expCount = `COUNTA(Painel!A2:A)`;
-  const REL = qn_(SHEET_NAME);
+  const expCount = `COUNTA(${PAN}!A2:A)`;
   WINDOWS.forEach((w,i)=>{
     const r = 3+i;
     sh.getRange(r,6).setValue(w.label); // F
@@ -393,25 +398,25 @@ function buildSummaryLayout_(sh) {
   sh.getRange('A3').setValue('Data/Hora último relatório');
   sh.getRange('B3').setFormula(`=INDEX(SORT(FILTER(${REL}!B2:B, ${REL}!B2:B<>""),1,FALSE),1)`);
   sh.getRange('A4').setValue('Média Score (Painel)');
-  sh.getRange('B4').setFormula(`=AVERAGE(Painel!S2:S)`);
+  sh.getRange('B4').setFormula(`=AVERAGE(${PAN}!S2:S)`);
   sh.getRange('A5').setValue('Semáforos (🟢 / 🟡 / 🔴)');
-  sh.getRange('B5').setFormula(`=COUNTIF(Painel!R2:R,"🟢")`);
-  sh.getRange('C5').setFormula(`=COUNTIF(Painel!R2:R,"🟡")`);
-  sh.getRange('D5').setFormula(`=COUNTIF(Painel!R2:R,"🔴")`);
+  sh.getRange('B5').setFormula(`=COUNTIF(${PAN}!R2:R,"🟢")`);
+  sh.getRange('C5').setFormula(`=COUNTIF(${PAN}!R2:R,"🟡")`);
+  sh.getRange('D5').setFormula(`=COUNTIF(${PAN}!R2:R,"🔴")`);
   sh.getRange('A6').setValue('Top Ativo por Score');
-  sh.getRange('B6').setFormula(`=INDEX(Painel!A2:A, MATCH(MAX(Painel!S2:S), Painel!S2:S, 0))`);
-  sh.getRange('C6').setFormula(`=MAX(Painel!S2:S)`);
+  sh.getRange('B6').setFormula(`=INDEX(${PAN}!A2:A, MATCH(MAX(${PAN}!S2:S), ${PAN}!S2:S, 0))`);
+  sh.getRange('C6').setFormula(`=MAX(${PAN}!S2:S)`);
 
   // ========== Semáforo global ==========
   sh.getRange('A8').setValue('Semáforo Global (Score ponderado)');
   sh.getRange('B8').setFormula(`=
     LET(
-      assets, FILTER(Painel!A2:A, Painel!A2:A<>""), 
-      scores, FILTER(Painel!S2:S, Painel!A2:A<>""), 
-      vols,   FILTER(Painel!N2:N, Painel!A2:A<>""), 
-      customW, IFNA(VLOOKUP(assets, Resumo!B16:C, 2, FALSE), ), 
-      capW,    IFNA(VLOOKUP(assets, Ref!A:B, 2, FALSE), ), 
-      weights, IF(LEN(customW), customW, IF(LEN(capW), capW, vols)), 
+      assets, FILTER(${PAN}!A2:A, ${PAN}!A2:A<>""),
+      scores, FILTER(${PAN}!S2:S, ${PAN}!A2:A<>""),
+      vols,   FILTER(${PAN}!N2:N, ${PAN}!A2:A<>""),
+      customW, IFNA(VLOOKUP(assets, ${RES}!B16:C, 2, FALSE), ),
+      capW,    IFNA(VLOOKUP(assets, ${REF}!A:B, 2, FALSE), ),
+      weights, IF(LEN(customW), customW, IF(LEN(capW), capW, vols)),
       IF(SUM(weights)=0, AVERAGE(scores), SUMPRODUCT(scores, weights)/SUM(weights))
     )`);
   sh.getRange('C8').setFormula(`=IFS($B8>=20,"🟢",$B8>=5,"🟡",TRUE,"🔴")`);
@@ -436,7 +441,7 @@ function buildSummaryLayout_(sh) {
   // Último PDF semanal (link)
   sh.getRange('E3').setValue('Último PDF Semanal');
   sh.getRange('F3').setFormula(
-    `=IFERROR(HYPERLINK(LOOKUP(2,1/(SemanalLog!B:B<>""),SemanalLog!B:B),"Abrir último PDF"),"")`
+    `=IFERROR(HYPERLINK(LOOKUP(2,1/(${SEMLOG}!B:B<>""),${SEMLOG}!B:B),"Abrir último PDF"),"")`
   );
 
   // Fiabilidade 7D (sparkline) — igual ao teu, só que mantém
@@ -447,7 +452,7 @@ function buildSummaryLayout_(sh) {
   sh.getRange('H9').setValue('% Sucesso');
   // Para simplicidade, mantemos a versão anterior com 4 janelas, mas funciona como amostra
   sh.getRange('G10').setFormula(`=ARRAYFORMULA(
-    N(COUNTIFS(${REL}!B:B,">="&F10:F16, ${REL}!B:B,"<"&F10:F16+1, ${REL}!D:D,"<>")>=COUNTA(Painel!A2:A))
+    N(COUNTIFS(${REL}!B:B,">="&F10:F16, ${REL}!B:B,"<"&F10:F16+1, ${REL}!D:D,"<>")>=COUNTA(${PAN}!A2:A))
   )`);
   sh.getRange('H10').setFormula(`=ARRAYFORMULA(IF(G10:G16="",,G10:G16/1))`);
   sh.getRange('H10:H16').setNumberFormat('0%');
@@ -459,7 +464,7 @@ function buildSummaryLayout_(sh) {
 
   // MM 30D (com Fiabilidade30)
   sh.getRange('E9').setValue('MM 30D (%)');
-  sh.getRange('F9').setFormula('=IFERROR(AVERAGE(Fiabilidade30!G2:INDEX(Fiabilidade30!G:G, 1+COUNTA(Fiabilidade30!A2:A))),)');
+  sh.getRange('F9').setFormula(`=IFERROR(AVERAGE(${F30}!G2:INDEX(${F30}!G:G, 1+COUNTA(${F30}!A2:A))),)`);
   sh.getRange('F9').setNumberFormat('0.00%');
   sh.getRange('E10').setValue('Tendência (MM30D)');
   sh.getRange('F10').setFormula('=IFS(F9>=0.9,"🟢",F9>=0.75,"🟡",TRUE,"🔴")');
@@ -468,7 +473,7 @@ function buildSummaryLayout_(sh) {
 }
 function buildSummaryCharts_(sh) {
   const ss = sh.getParent(); sh.getCharts().forEach(c => sh.removeChart(c));
-  const painel = ss.getSheetByName('Painel');
+  const painel = ss.getSheetByName(DASHBOARD_SHEET);
   const last = Math.max(painel.getLastRow(), 2);
 
   const bar = sh.newChart().asColumnChart()
@@ -613,55 +618,54 @@ function buildAlertsLayout_(sh) {
   ];
   sh.getRange(1,1,1,headers.length).setValues([headers]).setFontWeight('bold');
 
-  const REL = qn_(SHEET_NAME);
   for (let i=0; i<ASSETS.length; i++) {
   const r = 2+i; sh.getRange(r,1).setValue(ASSETS[i]);
 
   // Último timestamp (esta já funcionava)
-  sh.getRange(r,2).setFormula(`=INDEX(SORT(FILTER(Relatorios!B2:B, Relatorios!D2:D=$A${r}), 1, FALSE), 1)`);
+  sh.getRange(r,2).setFormula(`=INDEX(SORT(FILTER(${REL}!B2:B, ${REL}!D2:D=$A${r}), 1, FALSE), 1)`);
 
   // RSI atual
-  sh.getRange(r,3).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!M2:M}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,3).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!M2:M}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
   sh.getRange(r,4).setFormula(`=IF($C${r}="",, $C${r}>70)`);
   sh.getRange(r,5).setFormula(`=IF($C${r}="",, $C${r}<30)`);
 
   // MACD_Hist atual
-  sh.getRange(r,6).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!P2:P}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,6).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!P2:P}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
 
   // MACD flip ↑ (last>0 & prev<=0)
   sh.getRange(r,7).setFormula(`=IFERROR(AND(
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!P2:P}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2) > 0,
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!P2:P}, Relatorios!D2:D=$A${r}), 1, FALSE), 2, 2) <= 0
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!P2:P}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2) > 0,
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!P2:P}, ${REL}!D2:D=$A${r}), 1, FALSE), 2, 2) <= 0
   ), FALSE)`);
 
   // MACD flip ↓ (last<0 & prev>=0)
   sh.getRange(r,8).setFormula(`=IFERROR(AND(
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!P2:P}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2) < 0,
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!P2:P}, Relatorios!D2:D=$A${r}), 1, FALSE), 2, 2) >= 0
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!P2:P}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2) < 0,
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!P2:P}, ${REL}!D2:D=$A${r}), 1, FALSE), 2, 2) >= 0
   ), FALSE)`);
 
   // SMAs atuais
-  sh.getRange(r,9).setFormula( `=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!Q2:Q}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` );  // SMA20
-  sh.getRange(r,10).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!R2:R}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)` );  // SMA50
+  sh.getRange(r,9).setFormula( `=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Q2:Q}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)` );  // SMA20
+  sh.getRange(r,10).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!R2:R}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)` );  // SMA50
 
   // Golden / Death cross (usa last vs prev)
   sh.getRange(r,11).setFormula(`=IFERROR(AND(
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!Q2:Q}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2) >
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!R2:R}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2),
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!Q2:Q}, Relatorios!D2:D=$A${r}), 1, FALSE), 2, 2) <=
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!R2:R}, Relatorios!D2:D=$A${r}), 1, FALSE), 2, 2)
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Q2:Q}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2) >
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!R2:R}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2),
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Q2:Q}, ${REL}!D2:D=$A${r}), 1, FALSE), 2, 2) <=
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!R2:R}, ${REL}!D2:D=$A${r}), 1, FALSE), 2, 2)
   ), FALSE)`);
 
   sh.getRange(r,12).setFormula(`=IFERROR(AND(
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!Q2:Q}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2) <
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!R2:R}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2),
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!Q2:Q}, Relatorios!D2:D=$A${r}), 1, FALSE), 2, 2) >=
-    INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!R2:R}, Relatorios!D2:D=$A${r}), 1, FALSE), 2, 2)
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Q2:Q}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2) <
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!R2:R}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2),
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!Q2:Q}, ${REL}!D2:D=$A${r}), 1, FALSE), 2, 2) >=
+    INDEX(SORT(FILTER({${REL}!B2:B,${REL}!R2:R}, ${REL}!D2:D=$A${r}), 1, FALSE), 2, 2)
   ), FALSE)`);
 
   // Preço e Var24h (para contexto na grelha)
-  sh.getRange(r,13).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!E2:E}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)`);
-  sh.getRange(r,14).setFormula(`=INDEX(SORT(FILTER({Relatorios!B2:B,Relatorios!J2:J}, Relatorios!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,13).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!E2:E}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
+  sh.getRange(r,14).setFormula(`=INDEX(SORT(FILTER({${REL}!B2:B,${REL}!J2:J}, ${REL}!D2:D=$A${r}), 1, FALSE), 1, 2)`);
 
   // As fórmulas 15..18 (RSI cross-back/neutral) que tinhas com LET/TAKE já estavam corretas — mantém.
 }
@@ -855,7 +859,7 @@ function pushToDiscordEmbedSummary_(report) {
   const color = scoreToColor_(globalScore);
 
   const ss = SS_();
-  const p = ss.getSheetByName('Painel');
+  const p = ss.getSheetByName(DASHBOARD_SHEET);
   const last = p.getLastRow();
 
   const assets = p.getRange(2,1,last-1,1).getDisplayValues().flat().filter(String);
@@ -883,7 +887,7 @@ function pushToDiscordEmbedSummary_(report) {
 
 function readGlobalScore_() {
   const ss = SS_();
-  const sh = ss.getSheetByName('Resumo');
+  const sh = ss.getSheetByName(SUMMARY_SHEET);
   const score = Number(sh.getRange('B8').getValue() || 0);
   const emoji = String(sh.getRange('C8').getValue() || '');
   return { score, emoji };
