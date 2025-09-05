@@ -135,6 +135,58 @@ function json(obj){
 }
 
 /**
+ * Fetch JSON with optional caching and exponential backoff.
+ * @param {string} url
+ * @param {Object} [options]
+ * @param {string} [cacheKey]
+ * @param {number} [ttlSeconds]
+ * @return {{code:number,text:string,json:Object|null}}
+ */
+function fetchJson_(url, options = {}, cacheKey, ttlSeconds = 30) {
+  const cache = cacheKey ? CacheService.getScriptCache() : null;
+  if (cache) {
+    const cached = cache.get(cacheKey);
+    if (cached) return { code: 200, text: cached, json: JSON.parse(cached) };
+  }
+
+  const maxAttempts = 5;
+  options = options || {};
+  options.muteHttpExceptions = true;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    let res;
+    try {
+      res = UrlFetchApp.fetch(url, options);
+    } catch (err) {
+      if (attempt >= maxAttempts - 1) throw err;
+      const wait = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+      Utilities.sleep(wait);
+      continue;
+    }
+
+    const code = res.getResponseCode();
+    const text = res.getContentText() || '';
+
+    if (code >= 200 && code < 300) {
+      let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch (e) {}
+      if (cache && data !== null) cache.put(cacheKey, text, ttlSeconds || 30);
+      return { code, text, json: data };
+    }
+
+    if ((code === 429 || (code >= 500 && code < 600)) && attempt < maxAttempts - 1) {
+      const wait = Math.pow(2, attempt) * 1000 + Math.random() * 1000;
+      Utilities.sleep(wait);
+      continue;
+    }
+
+    return { code, text, json: (function(){ try { return JSON.parse(text); } catch(e){ return null; } })() };
+  }
+
+  throw new Error('fetchJson_ failed: retries exhausted');
+}
+
+/**
  * Shared routine to POST a sample payload to the configured Web App.
  */
 function testWebAppPostImpl_() {
@@ -163,11 +215,11 @@ function testWebAppPostImpl_() {
     // opcional: conteúdo de texto/markdown da tua task
     markdown: "## Exemplo de relatório MD\n\n- BTC: ...\n- ETH: ...\n"
   };
-  const res = UrlFetchApp.fetch(url, {
-    method: 'post', contentType: 'application/json', payload: JSON.stringify(payload), muteHttpExceptions: true
+  const res = fetchJson_(url, {
+    method: 'post', contentType: 'application/json', payload: JSON.stringify(payload)
   });
-  Logger.log(res.getResponseCode() + ' ' + res.getContentText());
-  return res.getContentText();
+  Logger.log(res.code + ' ' + res.text);
+  return res.text;
 }
 
 /** ===== Webhook Audit (verifica secret + campos de texto) ===== */
@@ -949,21 +1001,21 @@ function discordWebhookUrl_() {
 function discordPost_(payload) {
   const url = discordWebhookUrl_();
   if (!url) return;
-  const opts = { method: 'post', contentType: 'application/json', payload: JSON.stringify(payload), muteHttpExceptions: true };
-  const res = UrlFetchApp.fetch(url, opts);
-  const code = res.getResponseCode();
-  const txt  = res.getContentText();
+  const opts = { method: 'post', contentType: 'application/json', payload: JSON.stringify(payload) };
+  const res = fetchJson_(url, opts);
+  const code = res.code;
+  const txt  = res.text;
   if (code < 300) return; // OK
   Logger.log('Discord error ' + code + ': ' + txt);
   // fallback para forum threads com ID inválido
   try {
-    const body = JSON.parse(txt || '{}');
+    const body = res.json || {};
     if (body && body.code === 10003 && DISCORD_THREAD_ID) {
       const base = discordWebhookBase_();
       const sep  = base.indexOf('?') !== -1 ? '&' : '?';
       const fallbackUrl = base + sep + 'thread_name=' + encodeURIComponent(DISCORD_THREAD_NAME || 'Cripto Dashboard');
-      const res2 = UrlFetchApp.fetch(fallbackUrl, opts);
-      Logger.log('Discord fallback ' + res2.getResponseCode() + ': ' + res2.getContentText());
+      const res2 = fetchJson_(fallbackUrl, opts);
+      Logger.log('Discord fallback ' + res2.code + ': ' + res2.text);
     }
   } catch(e){ Logger.log(e); }
 }
