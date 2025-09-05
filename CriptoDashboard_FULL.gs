@@ -5,14 +5,11 @@
 // ====== CONFIG GERAL ======
 const TZ = 'Europe/Lisbon';
 
-// (Sugerido migrar para Script Properties)
-const SECRET = 'Ase$5fFDtt%tg_HGhty-JHyustt/&5$$34%FFHs+yggsy';
-const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1412187237902450689/lS1RU8MD92ZJbGwpkAVjCZ-kdyoIF1soqCNeHNrAhWOo6v8x2sqw6o8CFyiuF2NKS9U7';
+// Valores sensíveis são obtidos de Script Properties
 const DISCORD_THREAD_ID = '';
 const DISCORD_THREAD_NAME = 'CriptoDashboard';
 
 const DISCORD_PUSH_MODE = 'both'; // 'alerts' | 'every' | 'both'
-const ALERT_EMAILS = ['pdavimmilkman@gmail.com'];
 
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1WkpthzRBRSoobPdIpddzdK9p4ZQqauv6M_dQ5lPmwtU/edit?usp=sharing';
 const SHEET_NAME = 'Relatorios';
@@ -57,6 +54,19 @@ const HEADERS = [
   'Tendencia','Recomendacao','Justificacao',
   'Headline','NewsURL','FearGreed','ContextoNotas'
 ];
+
+// ==== Script Properties helpers ====
+const __PROP = PropertiesService.getScriptProperties();
+function getSecret_(){
+  return __PROP.getProperty('SECRET');
+}
+function getAlertEmails_(){
+  const raw = __PROP.getProperty('ALERT_EMAILS');
+  return raw ? raw.split(/\s*,\s*/).filter(Boolean) : [];
+}
+function discordWebhookBase_(){
+  return __PROP.getProperty('DISCORD_WEBHOOK_URL');
+}
 
 /* ========================= HELPERS ========================= */
 let __SS_CACHE = null;
@@ -179,10 +189,11 @@ function doPost(e) {
     const body = JSON.parse(e.postData.contents);
 
     // >>> NOVO: auditar sempre (mesmo quando secret está errado)
-    const gotSecret = !SECRET || body.secret === SECRET;
+    const secret = getSecret_();
+    const gotSecret = !secret || body.secret === secret;
     appendWebhookAudit_(body, gotSecret, gotSecret ? 'OK' : 'Bad secret');
 
-    if (SECRET && !gotSecret) return json({ ok:false, error:'unauthorized' });
+    if (secret && !gotSecret) return json({ ok:false, error:'unauthorized' });
 
     const report = body.report || {};
     const items = body.items;
@@ -781,7 +792,7 @@ function processAlertsStateAndNotify_(report) {
     sendAlertEmail_(changes, cur, report);
     appendAlertLog_(changes, report?.runAtISO || '', changes[0]?.N || 6);
     writePrevAlerts_(cur);
-    if (DISCORD_WEBHOOK_URL) pushToDiscordEmbedChanges_(changes, report);
+    if (discordWebhookUrl_()) pushToDiscordEmbedChanges_(changes, report);
   } else {
     writePrevAlerts_(cur);
   }
@@ -802,12 +813,12 @@ function sendAlertEmail_(changes, cur, report) {
   html += `</ul><p style="font-size:12px;color:#888">Janela RSI: ${changes[0]?.N || 6} • Fonte: Sheets</p>`;
 
   const subject = `Alertas Cripto — ${titleTs}`;
-  ALERT_EMAILS.forEach(to=> MailApp.sendEmail({ to, subject, htmlBody: html, noReply: true }));
+  getAlertEmails_().forEach(to=> MailApp.sendEmail({ to, subject, htmlBody: html, noReply: true }));
 }
 
 /* ========================= DISCORD (EMBEDS) ========================= */
 function maybePushDiscord_(mode, body, report) {
-  if (!DISCORD_WEBHOOK_URL) return;
+  if (!discordWebhookUrl_()) return;
   if (mode === 'every' || mode === 'both') {
     // mask secret
     const safe = JSON.parse(JSON.stringify(body || {}));
@@ -892,8 +903,8 @@ function scoreToColor_(score) {
 
 /* ===== Discord helper (forum thread support) ===== */
 function discordWebhookUrl_() {
-  if (!DISCORD_WEBHOOK_URL) return '';
-  const base = DISCORD_WEBHOOK_URL;
+  const base = discordWebhookBase_();
+  if (!base) return '';
   const hasQuery = base.indexOf('?') !== -1;
   if (DISCORD_THREAD_ID) return base + (hasQuery ? '&' : '?') + 'thread_id=' + encodeURIComponent(DISCORD_THREAD_ID);
   if (DISCORD_THREAD_NAME) return base + (hasQuery ? '&' : '?') + 'thread_name=' + encodeURIComponent(DISCORD_THREAD_NAME);
@@ -912,7 +923,7 @@ function discordPost_(payload) {
   try {
     const body = JSON.parse(txt || '{}');
     if (body && body.code === 10003 && DISCORD_THREAD_ID) {
-      const base = DISCORD_WEBHOOK_URL;
+      const base = discordWebhookBase_();
       const sep  = base.indexOf('?') !== -1 ? '&' : '?';
       const fallbackUrl = base + sep + 'thread_name=' + encodeURIComponent(DISCORD_THREAD_NAME || 'Cripto Dashboard');
       const res2 = UrlFetchApp.fetch(fallbackUrl, opts);
@@ -1000,9 +1011,9 @@ function sendMonitorAlerts_(ymd, missingWins, okMap){
   });
   html += `</table><p>Sheet: <a href="${SHEET_URL}">${SHEET_URL}</a></p>`;
 
-  ALERT_EMAILS.forEach(to=> MailApp.sendEmail({to, subject, htmlBody: html, noReply:true}));
+  getAlertEmails_().forEach(to=> MailApp.sendEmail({to, subject, htmlBody: html, noReply:true}));
 
-  if (DISCORD_WEBHOOK_URL){
+  if (discordWebhookUrl_()){
     const color = 0xE67E22;
     const fields = WINDOWS.map(w=>({ name: w.label, value: okMap[w.label] ? 'OK' : 'FALHOU', inline: true }));
     const embed = { title: `⏰ Monitor diário — ${ymd}`, url: SHEET_URL, color, fields, timestamp: new Date().toISOString() };

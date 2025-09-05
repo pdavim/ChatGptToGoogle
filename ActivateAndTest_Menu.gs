@@ -24,7 +24,7 @@ function oneClickActivate_() {
 }
 
 function pushDiscordActivationPing_() {
-  if (!DISCORD_WEBHOOK_URL) return 'Sem webhook configurado';
+  if (!discordWebhookUrl_()) return 'Sem webhook configurado';
   const embed = {
     title: '🚀 Cripto Dashboard — Ativação concluída',
     description: 'Triggers ativos (monitor & manutenção). Painel/Resumo/Alertas prontos.',
@@ -42,11 +42,12 @@ function pushDiscordActivationPing_() {
   return 'Ping enviado para Discord.';
 }
 function testEmail_() {
-  if (!ALERT_EMAILS || !ALERT_EMAILS.length) return 'Sem destinatários.';
+  const emails = getAlertEmails_();
+  if (!emails.length) return 'Sem destinatários.';
   const subject = 'Cripto Dashboard — Teste de ativação';
   const htmlBody = '<h3>✅ Ativação concluída</h3><p>Triggers criados e folhas atualizadas.</p>' +
                    '<p><a href="'+SHEET_URL+'">Abrir Dashboard</a></p>';
-  ALERT_EMAILS.forEach(to => MailApp.sendEmail({ to, subject, htmlBody, noReply: true }));
+  emails.forEach(to => MailApp.sendEmail({ to, subject, htmlBody, noReply: true }));
   return 'E-mail de teste enviado.';
 }
 function testAllNotifications_() {
@@ -67,7 +68,7 @@ function testWebAppPost_() {
   const now = new Date();
   const iso = Utilities.formatDate(now, TZ, "yyyy-MM-dd'T'HH:mm:ssXXX");
   const payload = {
-    secret: SECRET,
+    secret: getSecret_(),
     report: { reportId: 'TEST-'+now.getTime(), runAtISO: iso, windowLabel: '18:00' },
     items: ASSETS.map((sym, i) => ({
       symbol: sym, price: 100+i, open: 99+i, high: 101+i, low: 98+i, close: 100+i,
