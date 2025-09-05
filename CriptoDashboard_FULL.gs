@@ -1282,7 +1282,7 @@ function runNeutralAnalysisNow_Menu_(){
 function fixFormulaErrorsNow_(){
   const ss = SS_();
   const p = ss.getSheetByName(DASHBOARD_SHEET); if (p) buildDashboardLayout_(p);
-  const a = ss.getSheetByName(ALERTS_SHEET);    if (a) buildAlertsLayout_(a);
+  const a = ss.getSheetByName(ALERTS_SHEET);    if (a) { buildAlertsLayout_(a); addAlertsFormatting_(a); }
   const s = ss.getSheetByName(SUMMARY_SHEET);   if (s) refreshSummaryCharts_(s);
   SpreadsheetApp.getActive().toast('Formulas reconstruídas. Verifique Painel/Alertas/Resumo.');
 }
