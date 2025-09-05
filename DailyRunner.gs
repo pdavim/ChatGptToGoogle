@@ -36,7 +36,7 @@ function testWebAppPost_() {
   const now = new Date();
   const iso = Utilities.formatDate(now, TZ, "yyyy-MM-dd'T'HH:mm:ssXXX");
   const payload = {
-    secret: SECRET,
+    secret: getSecret_(),
     report: { reportId: 'TEST-'+now.getTime(), runAtISO: iso, windowLabel: '18:00' },
     items: ASSETS.map((sym, i) => ({
       symbol: sym, price: 100+i, open: 99+i, high: 101+i, low: 98+i, close: 100+i,
