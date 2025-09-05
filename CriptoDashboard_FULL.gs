@@ -129,9 +129,45 @@ function itemToRow(reportMeta = {}, item = {}) {
   ];
 }
 
-function json(obj){ 
+function json(obj){
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Shared routine to POST a sample payload to the configured Web App.
+ */
+function testWebAppPostImpl_() {
+  const prop = PropertiesService.getScriptProperties();
+  let url = prop.getProperty('WEB_APP_URL');
+  if (!url) {
+    url = Browser.inputBox('Informe a URL do Web App para testes:');
+    if (!url || url === 'cancel') return 'URL do Web App não fornecida.';
+    prop.setProperty('WEB_APP_URL', url);
+  }
+  const now = new Date();
+  const iso = Utilities.formatDate(now, TZ, "yyyy-MM-dd'T'HH:mm:ssXXX");
+  const payload = {
+    secret: getSecret_(),
+    report: { reportId: 'TEST-'+now.getTime(), runAtISO: iso, windowLabel: '18:00' },
+    items: ASSETS.map((sym, i) => ({
+      symbol: sym, price: 100+i, open: 99+i, high: 101+i, low: 98+i, close: 100+i,
+      var24h: 0.5, var7d: 1.2, var30d: 5.3,
+      rsi14: 55, macdLine: 0.2, macdSignal: 0.1, macdHist: 0.1,
+      sma20: 100, sma50: 100, sma100: 100, sma200: 100,
+      bollMiddle: 100, bollUpper: 102, bollLower: 98, bollWidth: 0.04,
+      atr14: 1.2, sarValue: 99.5, sarSide: 'long', volume: 123456, volDivergence: 0,
+      trend: 'lateral', recommendation: '🔁 Manter', justification: 'Teste',
+      headline: 'Sem notícias', newsUrl: '', fearGreed: 50, contextNotes: 'Demo'
+    })),
+    // opcional: conteúdo de texto/markdown da tua task
+    markdown: "## Exemplo de relatório MD\n\n- BTC: ...\n- ETH: ...\n"
+  };
+  const res = UrlFetchApp.fetch(url, {
+    method: 'post', contentType: 'application/json', payload: JSON.stringify(payload), muteHttpExceptions: true
+  });
+  Logger.log(res.getResponseCode() + ' ' + res.getContentText());
+  return res.getContentText();
 }
 
 /** ===== Webhook Audit (verifica secret + campos de texto) ===== */
