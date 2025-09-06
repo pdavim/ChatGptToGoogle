@@ -319,6 +319,9 @@ function doPost(e) {
     // Discord (modo 'every' opcional)
     try { maybePushDiscord_(DISCORD_PUSH_MODE, body, report); } catch(e){ Logger.log(e); }
 
+    // AI summary (externally generated via ChatGPT task)
+    try { writeAiSummaryIfPresent_(body); } catch(e){ Logger.log(e); }
+
     // Fiabilidade 30D (heatmap)
     try { ensureReliability30Sheet_(); } catch(e){ Logger.log(e); }
 
@@ -362,6 +365,35 @@ function writeMarkdownIfPresent_(body){
   } catch(e){
     Logger.log('writeMarkdownIfPresent_ error: ' + e);
   }
+}
+
+/* ========================= EXTERNAL AI SUMMARY ========================= */
+function writeAiSummaryIfPresent_(body){
+  try {
+    const keys = ['summary','aiSummary','resumo','textSummary'];
+    let text = '';
+    for (let k of keys){
+      if (typeof body?.[k] === 'string' && body[k].length){
+        text = body[k]; break;
+      }
+    }
+    if (!text) return; // nada para guardar
+
+    writeAiSummaryToSheet_(text);
+    if (discordWebhookUrl_()) {
+      discordPost_({ content: '🤖 Resumo IA:\n' + text.slice(0,1900) });
+    }
+  } catch(e){
+    Logger.log('writeAiSummaryIfPresent_ error: ' + e);
+  }
+}
+
+function writeAiSummaryToSheet_(text){
+  try {
+    const ss = SS_();
+    const sh = ss.getSheetByName(SUMMARY_SHEET) || ensureSummary();
+    sh.getRange('A2').setValue(text).setWrap(true);
+  } catch(e){ Logger.log('writeAiSummaryToSheet_ error: ' + e); }
 }
 
 

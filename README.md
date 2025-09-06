@@ -21,7 +21,7 @@ function initProps_() {
     SECRET: 'minha-senha',
     DISCORD_WEBHOOK_URL: 'https://discord.com/api/webhooks/...',
     DISCORD_ERROR_WEBHOOK_URL: 'https://discord.com/api/webhooks/erro...',
-    ALERT_EMAILS: 'user@example.com,other@example.com'
+    ALERT_EMAILS: 'user@example.com,other@example.com',
   });
 }
 ```
