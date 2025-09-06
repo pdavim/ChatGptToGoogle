@@ -270,7 +270,7 @@ function ensureHistory30() {
   if (!sh) sh = ss.insertSheet(HISTORY_SHEET);
 
   const today = new Date();
-  const end = new Date(Utilities.formatDate(today, TZ, 'yyyy/MM/dd 00:00:00'));
+  const end = new Date(Utilities.formatDate(today, APP_TZ, 'yyyy/MM/dd 00:00:00'));
   end.setHours(0,0,0,0);
   const start = new Date(end); start.setDate(end.getDate()-29);
 
@@ -283,7 +283,7 @@ function ensureHistory30() {
     const iso = r[1]; const asset = r[3]; const close = Number(r[8]);
     if (!iso || !asset || isNaN(close)) return;
     const d = new Date(iso);
-    const dStr = Utilities.formatDate(d, TZ, 'yyyy-MM-dd');
+    const dStr = Utilities.formatDate(d, APP_TZ, 'yyyy-MM-dd');
     const ts = d.getTime();
     if (!map[dStr]) map[dStr] = {};
     const cur = map[dStr][asset];
@@ -297,14 +297,14 @@ function ensureHistory30() {
   // procura último close antes do início
   for (let back=1; back<=60; back++){
     const probe = new Date(start); probe.setDate(start.getDate()-back);
-    const key = Utilities.formatDate(probe,TZ,'yyyy-MM-dd');
+    const key = Utilities.formatDate(probe,APP_TZ,'yyyy-MM-dd');
     if (map[key]) ASSETS.forEach(a=>{ if (map[key][a] && lastKnown[a]===undefined) lastKnown[a] = map[key][a].close; });
     if (ASSETS.every(a => lastKnown[a]!==undefined)) break;
   }
 
   for (let i=0;i<30;i++){
     const d = new Date(start); d.setDate(start.getDate()+i);
-    const key = Utilities.formatDate(d,TZ,'yyyy-MM-dd');
+    const key = Utilities.formatDate(d,APP_TZ,'yyyy-MM-dd');
     const row = [key];
     ASSETS.forEach(a=>{
       let val = '';
@@ -335,7 +335,7 @@ function updateHeartbeat_(report){
   const sh = ensureHeartbeat_();
   const ts = report?.runAtISO || new Date().toISOString();
   const win = String(report?.windowLabel || '');
-  const datePT = Utilities.formatDate(new Date(ts), TZ, 'yyyy-MM-dd');
+  const datePT = Utilities.formatDate(new Date(ts), APP_TZ, 'yyyy-MM-dd');
   sh.appendRow([datePT, win, ts, report?.reportId || '', ASSETS.length, 'OK']);
 }
 
@@ -357,8 +357,8 @@ function refreshDailyArtifacts_(){
 function checkDailyRuns_(){
   const ss = SS_();
   const now = new Date();
-  const hhmm = Utilities.formatDate(now, TZ, 'HH:mm');
-  const today = Utilities.formatDate(now, TZ, 'yyyy-MM-dd');
+  const hhmm = Utilities.formatDate(now, APP_TZ, 'HH:mm');
+  const today = Utilities.formatDate(now, APP_TZ, 'yyyy-MM-dd');
 
   const rel = getSheet();
   if (!rel || rel.getLastRow()<2) return;
@@ -386,7 +386,7 @@ function countWindow_(rows, ymd, win){
   rows.forEach(r=>{
     const ts = r[1]; const janela = r[2]; const ativo = r[3];
     if (!ts || !janela || !ativo) return;
-    const d = Utilities.formatDate(new Date(ts), TZ, 'yyyy-MM-dd');
+    const d = Utilities.formatDate(new Date(ts), APP_TZ, 'yyyy-MM-dd');
     if (d===ymd && String(janela)===win) c++;
   });
   return c;
@@ -417,7 +417,7 @@ function ensureReliability30Sheet_(){
   if (!sh) sh = ss.insertSheet(RELIAB_SHEET);
 
   const today = new Date();
-  const end = new Date(Utilities.formatDate(today, TZ, 'yyyy/MM/dd 00:00:00')); end.setHours(0,0,0,0);
+  const end = new Date(Utilities.formatDate(today, APP_TZ, 'yyyy/MM/dd 00:00:00')); end.setHours(0,0,0,0);
   const start = new Date(end); start.setDate(end.getDate()-29);
 
   const rel = getSheet();
@@ -429,7 +429,7 @@ function ensureReliability30Sheet_(){
     const row = data[i];
     const ts = row[1]; const w = String(row[2]||''); const asset = row[3];
     if (!ts || !w || !asset) continue;
-    const dStr = Utilities.formatDate(new Date(ts), TZ, 'yyyy-MM-dd');
+    const dStr = Utilities.formatDate(new Date(ts), APP_TZ, 'yyyy-MM-dd');
     dayMap[dStr] = dayMap[dStr] || {};
     dayMap[dStr][w] = (dayMap[dStr][w]||0) + 1;
   }
@@ -441,7 +441,7 @@ function ensureReliability30Sheet_(){
 
   for (let i=0;i<30;i++){
     const d = new Date(start); d.setDate(start.getDate()+i);
-    const key = Utilities.formatDate(d, TZ, 'yyyy-MM-dd');
+    const key = Utilities.formatDate(d, APP_TZ, 'yyyy-MM-dd');
     const wmap = dayMap[key] || {};
     const succ = WINDOWS.reduce((acc,w)=> acc + ((wmap[w.label]||0) >= ASSETS.length ? 1 : 0), 0);
     const pct = WINDOWS.length ? succ / WINDOWS.length : 0;
@@ -480,12 +480,12 @@ function ensureReliability30Sheet_(){
 /* ========================= SEMANAL (percentagens + PDF) ========================= */
 function maybeGenerateWeekly_(report) {
   const ts = report?.runAtISO ? new Date(report.runAtISO) : new Date();
-  const local = new Date(Utilities.formatDate(ts, TZ, "yyyy/MM/dd HH:mm:ss"));
+  const local = new Date(Utilities.formatDate(ts, APP_TZ, "yyyy/MM/dd HH:mm:ss"));
   const isMonday = local.getDay() === 1; // segunda
-  const is0830 = (Utilities.formatDate(local, TZ, "HH:mm") === "08:30");
+  const is0830 = (Utilities.formatDate(local, APP_TZ, "HH:mm") === "08:30");
   if (!(isMonday && is0830)) return;
 
-  const key = Utilities.formatDate(new Date(local.getTime()-24*3600*1000), TZ, "YYYY-'W'ww");
+  const key = Utilities.formatDate(new Date(local.getTime()-24*3600*1000), APP_TZ, "YYYY-'W'ww");
   const prop = PropertiesService.getScriptProperties();
   if (prop.getProperty('lastWeeklyKey') === key) return;
 
@@ -555,7 +555,7 @@ function writeWeeklySheet_(stats, start, end) {
   if (!sh) sh = ss.insertSheet(WEEKLY_SHEET);
   sh.clear();
 
-  sh.getRange(1,1).setValue('📅 Semana'); sh.getRange(1,2).setValue(`${Utilities.formatDate(start,TZ,'yyyy-MM-dd')} → ${Utilities.formatDate(end,TZ,'yyyy-MM-dd')}`).setFontWeight('bold');
+  sh.getRange(1,1).setValue('📅 Semana'); sh.getRange(1,2).setValue(`${Utilities.formatDate(start,APP_TZ,'yyyy-MM-dd')} → ${Utilities.formatDate(end,APP_TZ,'yyyy-MM-dd')}`).setFontWeight('bold');
   const header = ['Ativo','Amostras','🟢 Verde','🟡 Amarelo','🔴 Vermelho','%Verde','%Amarelo','%Vermelho'];
   sh.getRange(3,1,1,header.length).setValues([header]).setFontWeight('bold');
 
@@ -570,11 +570,11 @@ function writeWeeklySheet_(stats, start, end) {
 function exportWeeklyPDF_(start, end) {
   const ss = SS_();
   const src = ss.getSheetByName(WEEKLY_SHEET);
-  const tmp = SpreadsheetApp.create(`Cripto Weekly ${Utilities.formatDate(start,TZ,'yyyy-MM-dd')}`);
+  const tmp = SpreadsheetApp.create(`Cripto Weekly ${Utilities.formatDate(start,APP_TZ,'yyyy-MM-dd')}`);
   const dst = tmp.getSheets()[0]; dst.setName('Semanal');
   const range = src.getRange(1,1,src.getLastRow(), src.getLastColumn());
   range.copyTo(dst.getRange(1,1), {contentsOnly:true});
-  const blob = tmp.getAs('application/pdf').setName(`Cripto-Weekly-${Utilities.formatDate(start,TZ,'yyyy-MM-dd')}.pdf`);
+  const blob = tmp.getAs('application/pdf').setName(`Cripto-Weekly-${Utilities.formatDate(start,APP_TZ,'yyyy-MM-dd')}.pdf`);
   const file = DriveApp.createFile(blob);
   DriveApp.getFileById(tmp.getId()).setTrashed(true);
   return file.getUrl();
@@ -586,7 +586,7 @@ function logWeekly_(key, url, start, end) {
     log = ss.insertSheet(WEEKLY_LOG_SHEET);
     log.getRange(1,1,1,4).setValues([['WeekKey','PDF_URL','Start','End']]).setFontWeight('bold');
   }
-  log.appendRow([key, url, Utilities.formatDate(start,TZ,'yyyy-MM-dd'), Utilities.formatDate(end,TZ,'yyyy-MM-dd')]);
+  log.appendRow([key, url, Utilities.formatDate(start,APP_TZ,'yyyy-MM-dd'), Utilities.formatDate(end,APP_TZ,'yyyy-MM-dd')]);
 
   const summary = ss.getSheetByName(SUMMARY_SHEET);
   if (summary && url) summary.getRange('F3').setFormula(`=HYPERLINK("${url}","Abrir último PDF")`);
@@ -621,7 +621,7 @@ function uiOpenResumo_(){
   ss.setActiveSheet(sh);
 }
 function runNeutralAnalysisNow_Menu_(){
-  var label = Utilities.formatDate(new Date(), TZ, 'HH:mm') + ' (Manual)';
+  var label = Utilities.formatDate(new Date(), APP_TZ, 'HH:mm') + ' (Manual)';
   try {
     var res = runNeutralAnalysisNow_(label);
     SpreadsheetApp.getActive().toast('DailyRunner OK');

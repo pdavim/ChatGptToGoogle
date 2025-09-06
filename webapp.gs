@@ -10,7 +10,7 @@ function testWebAppPostImpl_() {
     prop.setProperty('WEB_APP_URL', url);
   }
   const now = new Date();
-  const iso = Utilities.formatDate(now, TZ, "yyyy-MM-dd'T'HH:mm:ssXXX");
+  const iso = Utilities.formatDate(now, APP_TZ, "yyyy-MM-dd'T'HH:mm:ssXXX");
   const payload = {
     secret: getSecret_(),
     report: { reportId: 'TEST-'+now.getTime(), runAtISO: iso, windowLabel: '18:00' },

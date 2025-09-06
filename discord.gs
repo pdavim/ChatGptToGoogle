@@ -14,7 +14,7 @@ function maybePushDiscord_(mode, body, report) {
 
 function pushToDiscordEmbedChanges_(changes, report) {
   const ts = report?.runAtISO || new Date().toISOString();
-  const titleTs = Utilities.formatDate(new Date(ts), TZ, "yyyy-MM-dd HH:mm");
+  const titleTs = Utilities.formatDate(new Date(ts), APP_TZ, "yyyy-MM-dd HH:mm");
   const { score: globalScore } = readGlobalScore_();
   const color = scoreToColor_(globalScore);
 
@@ -38,7 +38,7 @@ function pushToDiscordEmbedChanges_(changes, report) {
 }
 function pushToDiscordEmbedSummary_(report) {
   const ts = report?.runAtISO || new Date().toISOString();
-  const titleTs = Utilities.formatDate(new Date(ts), TZ, "yyyy-MM-dd HH:mm");
+  const titleTs = Utilities.formatDate(new Date(ts), APP_TZ, "yyyy-MM-dd HH:mm");
   const { score: globalScore, emoji } = readGlobalScore_();
   const color = scoreToColor_(globalScore);
 

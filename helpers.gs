@@ -8,7 +8,7 @@ function SS_(){
 
 function ensureSpreadsheetTZ_() {
   const ss = SS_();
-  if (ss.getSpreadsheetTimeZone() !== TZ) ss.setSpreadsheetTimeZone(TZ);
+  if (ss.getSpreadsheetTimeZone() !== APP_TZ) ss.setSpreadsheetTimeZone(APP_TZ);
 }
 function qn_(name){
   // quoted name for formulas if needed
