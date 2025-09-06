@@ -11,6 +11,7 @@ Propriedades esperadas:
 - `DISCORD_WEBHOOK_URL` – URL do webhook do Discord para envio de notificações.
 - `DISCORD_ERROR_WEBHOOK_URL` – webhook opcional para alertas quando o envio falhar.
 - `ALERT_EMAILS` – lista de e-mails separados por vírgula que receberão alertas.
+- `OPENAI_API_KEY` – chave da API da OpenAI usada para gerar resumos automáticos.
 
 As propriedades podem ser definidas manualmente em **Project Settings → Script
 properties**, ou programaticamente executando uma função como a abaixo uma vez:
@@ -21,7 +22,8 @@ function initProps_() {
     SECRET: 'minha-senha',
     DISCORD_WEBHOOK_URL: 'https://discord.com/api/webhooks/...',
     DISCORD_ERROR_WEBHOOK_URL: 'https://discord.com/api/webhooks/erro...',
-    ALERT_EMAILS: 'user@example.com,other@example.com'
+    ALERT_EMAILS: 'user@example.com,other@example.com',
+    OPENAI_API_KEY: 'sk-...'
   });
 }
 ```
