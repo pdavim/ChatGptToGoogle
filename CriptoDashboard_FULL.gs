@@ -72,6 +72,10 @@ function discordErrorWebhookUrl_(){
   return __PROP.getProperty('DISCORD_ERROR_WEBHOOK_URL');
 }
 
+function openAiApiKey_(){
+  return __PROP.getProperty('OPENAI_API_KEY');
+}
+
 /* ========================= HELPERS ========================= */
 let __SS_CACHE = null;
 function SS_(){
@@ -319,6 +323,9 @@ function doPost(e) {
     // Discord (modo 'every' opcional)
     try { maybePushDiscord_(DISCORD_PUSH_MODE, body, report); } catch(e){ Logger.log(e); }
 
+    // AI summary
+    try { aiSummary_(items); } catch(e){ Logger.log(e); }
+
     // Fiabilidade 30D (heatmap)
     try { ensureReliability30Sheet_(); } catch(e){ Logger.log(e); }
 
@@ -362,6 +369,65 @@ function writeMarkdownIfPresent_(body){
   } catch(e){
     Logger.log('writeMarkdownIfPresent_ error: ' + e);
   }
+}
+
+/* ========================= AI SUMMARY ========================= */
+function aiSummary_(items){
+  const apiKey = openAiApiKey_();
+  if (!apiKey || !Array.isArray(items) || !items.length) return '';
+
+  const lines = [];
+  for (let i=0;i<items.length;i++){
+    const it = items[i] || {};
+    lines.push(`${it.symbol}: preço ${it.price}, 24h ${it.var24h}%, RSI ${it.rsi14}, tendência ${it.trend}, reco ${it.recommendation}`);
+  }
+  let content = lines.join('\n');
+  const maxChars = 1500;
+  if (content.length > maxChars) content = content.slice(0, maxChars) + '\n...';
+
+  const payload = {
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: 'Resuma de forma concisa em português os principais movimentos do mercado.' },
+      { role: 'user', content }
+    ],
+    max_tokens: 120,
+    temperature: 0.2
+  };
+
+  try {
+    const res = UrlFetchApp.fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify(payload),
+      headers: { Authorization: 'Bearer ' + apiKey },
+      muteHttpExceptions: true,
+      timeout: 30000
+    });
+    const code = res.getResponseCode();
+    const text = res.getContentText();
+    if (code >= 200 && code < 300) {
+      const json = JSON.parse(text); const summary = json?.choices?.[0]?.message?.content?.trim() || '';
+      if (summary){
+        writeAiSummaryToSheet_(summary);
+        if (discordWebhookUrl_()) discordPost_({ content: '🤖 Resumo IA:\n' + summary.slice(0,1900) });
+      }
+      return summary;
+    } else {
+      Logger.log('aiSummary_ error ' + code + ': ' + text);
+    }
+  } catch(e){
+    Logger.log('aiSummary_ exception: ' + e);
+  }
+  return '';
+}
+
+function writeAiSummaryToSheet_(text){
+  try {
+    const ss = SS_();
+    const sh = ss.getSheetByName(SUMMARY_SHEET) || ensureSummary();
+    sh.getRange('A2').setValue(text).setWrap(true);
+  } catch(e){ Logger.log('writeAiSummaryToSheet_ error: ' + e); }
 }
 
 
