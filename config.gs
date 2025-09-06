@@ -3,7 +3,7 @@
  ************************************************************/
 
 // ====== CONFIG GERAL ======
-const TZ = 'Europe/Lisbon';
+const APP_TZ = 'Europe/Lisbon';
 
 // Valores sensíveis são obtidos de Script Properties
 const DISCORD_THREAD_ID = '';

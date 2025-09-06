@@ -201,7 +201,7 @@ function processAlertsStateAndNotify_(report) {
 }
 function sendAlertEmail_(changes, cur, report) {
   const ts = report?.runAtISO || new Date().toISOString();
-  const titleTs = Utilities.formatDate(new Date(ts), TZ, 'yyyy-MM-dd HH:mm');
+  const titleTs = Utilities.formatDate(new Date(ts), APP_TZ, 'yyyy-MM-dd HH:mm');
 
   const bySym = {};
   changes.forEach(ch => { (bySym[ch.sym] = bySym[ch.sym] || []).push(ch); });
