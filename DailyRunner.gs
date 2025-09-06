@@ -3,6 +3,40 @@
  * Funções chamadas por triggers agendados para manutenção diária.
  */
 
+/**
+ * Executa uma função com tratamento de erros e notificação.
+ * @param {Function} fn    Função a executar.
+ * @param {string}   label Rótulo para logs e alertas.
+ */
+function safeRun_(fn, label) {
+  try {
+    fn();
+  } catch (e) {
+    const stack = e && e.stack ? e.stack : String(e);
+    Logger.log(stack);
+    try {
+      const summary = '[' + label + '] ' + (e && e.message ? e.message : e);
+      const errUrl = typeof discordErrorWebhookUrl_ === 'function' && discordErrorWebhookUrl_();
+      if (errUrl) {
+        const payload = { content: summary.slice(0, 2000) };
+        fetchJson_(errUrl, {
+          method: 'post',
+          contentType: 'application/json',
+          payload: JSON.stringify(payload),
+        });
+      } else if (typeof getAlertEmails_ === 'function') {
+        const subject = 'Falha em ' + label;
+        const htmlBody = `<p>${summary}</p><pre>${stack}</pre>`;
+        getAlertEmails_().forEach(to =>
+          MailApp.sendEmail({ to, subject, htmlBody, noReply: true })
+        );
+      }
+    } catch (inner) {
+      Logger.log(inner);
+    }
+  }
+}
+
 /** Executa a rotina de atualização diária dos artefatos. */
 function runDailyRefresh_() {
   const lock = LockService.getScriptLock();
@@ -11,9 +45,7 @@ function runDailyRefresh_() {
     return;
   }
   try {
-    refreshDailyArtifacts_();
-  } catch (e) {
-    Logger.log(e);
+    safeRun_(refreshDailyArtifacts_, 'runDailyRefresh_');
   } finally {
     lock.releaseLock();
   }
@@ -27,9 +59,7 @@ function runDailyMonitor_() {
     return;
   }
   try {
-    checkDailyRuns_();
-  } catch (e) {
-    Logger.log(e);
+    safeRun_(checkDailyRuns_, 'runDailyMonitor_');
   } finally {
     lock.releaseLock();
   }
