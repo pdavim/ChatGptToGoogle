@@ -68,6 +68,10 @@ function discordWebhookBase_(){
   return __PROP.getProperty('DISCORD_WEBHOOK_URL');
 }
 
+function discordErrorWebhookUrl_(){
+  return __PROP.getProperty('DISCORD_ERROR_WEBHOOK_URL');
+}
+
 /* ========================= HELPERS ========================= */
 let __SS_CACHE = null;
 function SS_(){
@@ -998,14 +1002,38 @@ function discordWebhookUrl_() {
   if (DISCORD_THREAD_NAME) return base + (hasQuery ? '&' : '?') + 'thread_name=' + encodeURIComponent(DISCORD_THREAD_NAME);
   return base;
 }
-function discordPost_(payload) {
+function discordPost_(payload, errorWebhook) {
   const url = discordWebhookUrl_();
   if (!url) return;
+
+  // Trim content and embeds to Discord limits
+  if (payload.content) payload.content = String(payload.content).slice(0, 2000);
+  if (Array.isArray(payload.embeds)) {
+    const maxFields = f => ({
+      name: String(f.name || '').slice(0, 256),
+      value: String(f.value || '').slice(0, 1024),
+      inline: f.inline ? true : false
+    });
+    payload.embeds = payload.embeds.slice(0, 10).map(e => {
+      if (e.title)       e.title       = String(e.title).slice(0, 256);
+      if (e.description) e.description = String(e.description).slice(0, 4096);
+      if (e.author && e.author.name) e.author.name = String(e.author.name).slice(0, 256);
+      if (e.footer && e.footer.text) e.footer.text = String(e.footer.text).slice(0, 2048);
+      if (Array.isArray(e.fields)) e.fields = e.fields.slice(0,25).map(maxFields);
+      return e;
+    });
+  }
+
   const opts = { method: 'post', contentType: 'application/json', payload: JSON.stringify(payload) };
-  const res = fetchJson_(url, opts);
+  let res = fetchJson_(url, opts);
+  if (res.code === 429) {
+    Utilities.sleep(1000);
+    res = fetchJson_(url, opts);
+  }
   const code = res.code;
   const txt  = res.text;
   if (code < 300) return; // OK
+
   Logger.log('Discord error ' + code + ': ' + txt);
   // fallback para forum threads com ID inválido
   try {
@@ -1018,6 +1046,17 @@ function discordPost_(payload) {
       Logger.log('Discord fallback ' + res2.code + ': ' + res2.text);
     }
   } catch(e){ Logger.log(e); }
+
+  const errUrl = errorWebhook || discordErrorWebhookUrl_();
+  if (errUrl && errUrl !== url) {
+    try {
+      const msg = 'Discord error ' + code + ': ' + txt;
+      const epayload = { content: msg.slice(0, 2000) };
+      fetchJson_(errUrl, { method: 'post', contentType: 'application/json', payload: JSON.stringify(epayload) });
+    } catch(e){ Logger.log(e); }
+  }
+
+  throw new Error('Discord POST failed with code ' + code + ': ' + txt);
 }
 
 /* ========================= HEARTBEAT & MONITOR ========================= */
