@@ -72,6 +72,10 @@ function discordErrorWebhookUrl_(){
   return __PROP.getProperty('DISCORD_ERROR_WEBHOOK_URL');
 }
 
+function openAiApiKey_(){
+  return __PROP.getProperty('OPENAI_API_KEY');
+}
+
 /* ========================= HELPERS ========================= */
 let __SS_CACHE = null;
 function SS_(){
@@ -322,6 +326,7 @@ function doPost(e) {
     // AI summary (externally generated via ChatGPT task)
     try { writeAiSummaryIfPresent_(body); } catch(e){ Logger.log(e); }
 
+
     // Fiabilidade 30D (heatmap)
     try { ensureReliability30Sheet_(); } catch(e){ Logger.log(e); }
 
@@ -386,6 +391,7 @@ function writeAiSummaryIfPresent_(body){
   } catch(e){
     Logger.log('writeAiSummaryIfPresent_ error: ' + e);
   }
+
 }
 
 function writeAiSummaryToSheet_(text){
